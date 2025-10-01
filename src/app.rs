@@ -1,50 +1,56 @@
 use leptos::prelude::*;
 use leptos_meta::*;
-use leptos_router::{
-    components::{FlatRoutes, Route, Router},
-    StaticSegment,
+
+use crate::{
+    api::converse,
+    components::{chat_area::ChatArea, prompt_area::PromptArea},
+    model::conversation::{Conversation, Message},
 };
 
 #[component]
 pub fn App() -> impl IntoView {
     provide_meta_context();
 
+    let (conversation, set_conversation) = signal(Conversation::new());
+    let send_conversation = Action::new(move |new_msg: &String| {
+        let user_msg = Message {
+            text: new_msg.clone(),
+            user: true,
+        };
+        set_conversation.update(|c| {
+            c.messages.push(user_msg);
+        });
+
+        converse(new_msg.clone())
+    });
+
+    Effect::new(move |_| {
+        if let Some(_) = send_conversation.input().get() {
+            let load_msg = Message {
+                text: String::from("..."),
+                user: false,
+            };
+
+            set_conversation.update(move |c| {
+                c.messages.push(load_msg);
+            });
+        }
+    });
+
+    Effect::new(move |_| {
+        if let Some(Ok(res)) = send_conversation.value().get() {
+            set_conversation.update(move |c| {
+                c.messages.last_mut().unwrap().text = res;
+            });
+        }
+    });
+
     view! {
         <Stylesheet id="leptos" href="/pkg/crabby-prompt.css"/>
         <Link rel="shortcut icon" type_="image/ico" href="/favicon.ico"/>
-        <Router>
-            <FlatRoutes fallback=|| "Page not found.">
-                <Route path=StaticSegment("") view=Home/>
-            </FlatRoutes>
-        </Router>
-    }
-}
 
-#[component]
-fn Home() -> impl IntoView {
-    let (value, set_value) = signal(0);
-
-    // thanks to https://tailwindcomponents.com/component/blue-buttons-example for the showcase layout
-    view! {
-        <Title text="Leptos + Tailwindcss"/>
-        <main>
-            <div class="bg-gradient-to-tl from-blue-800 to-blue-500 text-white font-mono flex flex-col min-h-screen">
-                <div class="flex flex-row-reverse flex-wrap m-auto">
-                    <button on:click=move |_| set_value.update(|value| *value += 1) class="rounded px-3 py-2 m-1 border-b-4 border-l-2 shadow-lg bg-blue-700 border-blue-800 text-white">
-                        "+"
-                    </button>
-                    <button class="rounded px-3 py-2 m-1 border-b-4 border-l-2 shadow-lg bg-blue-800 border-blue-900 text-white">
-                        {value}
-                    </button>
-                    <button
-                        on:click=move |_| set_value.update(|value| *value -= 1)
-                        class="rounded px-3 py-2 m-1 border-b-4 border-l-2 shadow-lg bg-blue-700 border-blue-800 text-white"
-                        class:invisible=move || {value.get() < 1}
-                    >
-                        "-"
-                    </button>
-                </div>
-            </div>
-        </main>
+        <Title text="Crabby Prompt, now with some intelligence"/>
+        <ChatArea conversation/>
+        <PromptArea send=send_conversation/>
     }
 }
