@@ -1,13 +1,28 @@
 # CrabbyPrompt
 Trying to build a localy deployed LLM source language models, on a full Rust web stack
 
-Feel free to explore the project structure, but the best place to start with your application code is in `src/app.rs`.
-Additionally, Cargo.toml may need updating as new versions of the dependencies are released, especially if things are not working after a `cargo update`.
+# Leptos SSR
+Since this project uses Leptos for server-side rendering, we need to grab build tools.
 
-## Running your project
+```bash
+cargo install --locked cargo-leptos
+```
+
+## Running project in DEV mode
 
 ```bash
 cargo leptos watch
+```
+
+## Running project in PROD mode
+Run the build command to get the server binary in target/release and site package in target/site and to start the server:
+```bash
+cargo leptos serve --release
+```
+
+And then run the following command to start the server:
+```bash
+target/release/crabby_prompt
 ```
 
 ## Installing Additional Tools
@@ -17,7 +32,7 @@ By default, `cargo-leptos` uses `nightly` Rust, `cargo-generate`, and `sass`. If
 1. `rustup toolchain install nightly --allow-downgrade` - make sure you have Rust nightly
 2. `rustup target add wasm32-unknown-unknown` - add the ability to compile Rust to WebAssembly
 3. `cargo install cargo-generate` - install `cargo-generate` binary (should be installed automatically in future)
-4. `npm install -g sass` - install `dart-sass` (should be optional in future
+4. `npm install -g sass` - install `dart-sass` (should be optional in future)
 5. Run `npm install` in end2end subdirectory before test
 
 ## Compiling for Release
@@ -25,9 +40,9 @@ By default, `cargo-leptos` uses `nightly` Rust, `cargo-generate`, and `sass`. If
 cargo leptos build --release
 ```
 
-Will generate your server binary in target/release and your site package in target/site
+Will generate server binary in target/release and site package in target/site
 
-## Testing Your Project
+## E2E Project Testing
 ```bash
 cargo leptos end-to-end
 ```
@@ -59,7 +74,3 @@ export LEPTOS_SITE_ADDR="127.0.0.1:3000"
 export LEPTOS_RELOAD_PORT="3001"
 ```
 Finally, run the server binary.
-
-## Licensing
-
-This template itself is released under the Unlicense. You should replace the LICENSE for your own application with an appropriate license if you plan to release it publicly.

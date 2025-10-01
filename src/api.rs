@@ -1,4 +1,4 @@
-use leptos::{prelude::ServerFnError, server, server_fn};
+use leptos::prelude::*;
 
 #[server(Converse, "/api")]
 pub async fn converse(prompt: String) -> Result<String, ServerFnError> {
